@@ -268,28 +268,28 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 
 .q-options { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
 .q-opt {
-  display: flex; align-items: flex-start; gap: 14px; padding: 12px 14px;
-  border: 1px solid var(--border); border-radius: var(--radius);
-  cursor: pointer; transition: background .12s, border-color .12s;
-  background: transparent; user-select: none; position: relative;
+  display: flex; align-items: flex-start; gap: 14px; padding: 14px 14px 14px 12px;
+  border: 1px solid var(--border); border-left: 4px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer; background: transparent; user-select: none; position: relative;
 }
 .q-opt:hover { background: var(--accent-bg-soft); border-color: var(--border-strong); }
-.q-opt.selected { background: var(--accent-bg-soft); border-color: var(--accent); }
+.q-opt.selected {
+  background: var(--accent-bg-soft);
+  border-color: var(--accent); border-left-color: var(--accent);
+}
 .q-opt.disabled { cursor: default; }
 .q-opt.correct {
-  border-color: var(--good); background: var(--good-bg);
-  border-width: 1px; box-shadow: inset 4px 0 0 var(--good);
-  padding-left: 18px;
+  border-color: var(--good); border-left-color: var(--good);
+  background: var(--good-bg);
 }
 .q-opt.incorrect {
-  border-color: var(--bad); background: var(--bad-bg);
-  border-width: 1px; box-shadow: inset 4px 0 0 var(--bad);
-  padding-left: 18px;
+  border-color: var(--bad); border-left-color: var(--bad);
+  background: var(--bad-bg);
 }
 .q-opt.missed {
-  border-color: var(--good); background: var(--good-bg);
-  border-style: dashed; box-shadow: inset 4px 0 0 var(--good);
-  padding-left: 18px;
+  border-color: var(--warn); border-left-color: var(--warn);
+  background: var(--warn-bg); border-style: dashed;
 }
 
 /* Result mark - displayed at the right side of the option */
@@ -301,8 +301,9 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 .q-opt.correct .result-mark, .q-opt.incorrect .result-mark, .q-opt.missed .result-mark {
   display: inline-flex;
 }
-.q-opt.correct .result-mark, .q-opt.missed .result-mark { color: var(--good); }
+.q-opt.correct .result-mark { color: var(--good); }
 .q-opt.incorrect .result-mark { color: var(--bad); }
+.q-opt.missed .result-mark { color: var(--warn); }
 
 .q-opt-letter {
   flex-shrink: 0; width: 22px; height: 22px;
@@ -316,7 +317,7 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 .q-opt.selected .q-opt-letter { color: var(--accent); border-right-color: var(--accent); }
 .q-opt.correct .q-opt-letter { color: var(--good); border-right-color: var(--good); }
 .q-opt.incorrect .q-opt-letter { color: var(--bad); border-right-color: var(--bad); }
-.q-opt.missed .q-opt-letter { color: var(--good); border-right-color: var(--good); }
+.q-opt.missed .q-opt-letter { color: var(--warn); border-right-color: var(--warn); }
 .q-opt-content { flex: 1; padding-top: 2px; line-height: 1.5; font-size: 17px; min-width: 0; }
 .q-opt-content img {
   max-width: min(100%, 240px); max-height: 160px; height: auto; display: block;
@@ -332,30 +333,7 @@ sup { vertical-align: 0.5em; }
 
 /* --- Quiz footer --- */
 .quiz-footer { display: flex; gap: 12px; margin-top: 20px; }
-.quiz-footer .btn { flex: 1; }
-
-/* Sticky bottom action bar on smaller viewports (mobile + tablet) for easier thumb reach */
-@media (max-width: 1024px) {
-  #view-quiz {
-    min-height: calc(100vh - 80px);
-    padding-bottom: 120px;
-  }
-  #view-quiz .quiz-footer {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding: 14px 20px;
-    padding-bottom: calc(14px + env(safe-area-inset-bottom));
-    margin: 0; z-index: 50;
-    gap: 10px;
-  }
-  #view-quiz .quiz-footer .btn { padding: 14px 18px; font-size: 16px; }
-  #view-quiz .end-test-row {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 51;
-    pointer-events: none;
-  }
-  #view-quiz .end-test-row button { pointer-events: auto; }
-}
+.quiz-footer .btn { flex: 1; padding: 14px 24px; }
 
 /* --- Results view --- */
 .score-circle {
