@@ -7,13 +7,13 @@
 <title>LF Quiz - Príprava na prijímacie skúšky</title>
 <style>
 :root {
-  /* Warm cream/parchment palette - light academia aesthetic */
+  /* Default: Aesthetic / parchment palette */
   --bio: #5a3a2e; --bio-light: #8b5e3c; --bio-bg: #ede2d0; --bio-bg-soft: #f5ede0;
   --chem: #3d5240; --chem-light: #6b7d5e; --chem-bg: #dce3d3; --chem-bg-soft: #ebf0e3;
   --bg: #f5efe2; --surface: #fbf7ec; --text: #2a2218; --text-soft: #6b5b47;
   --border: #d8ccb6; --border-strong: #b8a787;
-  --good: #4a6b3f; --good-bg: #dde6cf; --good-border: #8fa57c;
-  --bad: #8b3a2e; --bad-bg: #efd6cf; --bad-border: #c08372;
+  --good: #3e6630; --good-bg: #c5d8b3; --good-border: #6e8d56;
+  --bad: #9a3a2c; --bad-bg: #e6c1b5; --bad-border: #b86954;
   --warn: #a87c2f; --warn-bg: #f0e2c0;
   --star: #b8902a;
   --shadow: 0 1px 2px rgba(60,40,20,.05), 0 2px 4px rgba(60,40,20,.04);
@@ -25,13 +25,38 @@
   --accent-bg-soft: var(--bio-bg-soft);
   --serif: "Times New Roman", Times, "Liberation Serif", "DejaVu Serif", Georgia, serif;
 }
+
+/* Clean white style (kept typography, swapped palette) */
+body.style-clean {
+  --bio: #1e3a8a; --bio-light: #3b5fc8; --bio-bg: #dbe4f6; --bio-bg-soft: #eef2fb;
+  --chem: #166534; --chem-light: #16a34a; --chem-bg: #d1ecdb; --chem-bg-soft: #f0faf3;
+  --bg: #ffffff; --surface: #ffffff; --text: #0f172a; --text-soft: #64748b;
+  --border: #e5e7eb; --border-strong: #cbd5e1;
+  --good: #15803d; --good-bg: #c4ebcf; --good-border: #4ade80;
+  --bad: #b91c1c; --bad-bg: #facccc; --bad-border: #f87171;
+  --warn: #b45309; --warn-bg: #fed7aa;
+  --star: #ca8a04;
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.06);
+}
+body.style-clean::before { display: none; }
+
 [data-theme="dark"] {
   --bg: #1c1812; --surface: #26201a; --text: #ede2d0; --text-soft: #a8967c;
   --border: #3d3528; --border-strong: #5a4f3d;
   --bio: #c9a87c; --bio-light: #d4b893; --bio-bg: #3d3424; --bio-bg-soft: #2e271c;
   --chem: #a3b88c; --chem-light: #b8cca0; --chem-bg: #2e3a26; --chem-bg-soft: #252e1f;
-  --good-bg: #2e3a26; --bad-bg: #3a261f; --warn-bg: #3a2e1f;
+  --good: #8fb87a; --good-bg: #3a4a2e; --good-border: #6e8d56;
+  --bad: #d9876f; --bad-bg: #4a2922; --bad-border: #b86954;
+  --warn-bg: #3a2e1f;
   --shadow: 0 1px 3px rgba(0,0,0,.4); --shadow-lg: 0 8px 20px rgba(0,0,0,.5);
+}
+body.style-clean[data-theme="dark"], html[data-theme="dark"] body.style-clean {
+  --bg: #0a0a0a; --surface: #18181b; --text: #fafafa; --text-soft: #a1a1aa;
+  --border: #27272a; --border-strong: #3f3f46;
+  --bio: #93c5fd; --bio-light: #bfdbfe; --bio-bg: #1e3a8a; --bio-bg-soft: #172554;
+  --chem: #86efac; --chem-light: #bbf7d0; --chem-bg: #14532d; --chem-bg-soft: #052e16;
+  --good: #4ade80; --good-bg: #14532d; --good-border: #22c55e;
+  --bad: #f87171; --bad-bg: #7f1d1d; --bad-border: #ef4444;
 }
 body.subject-chem { --accent: var(--chem); --accent-light: var(--chem-light); --accent-bg: var(--chem-bg); --accent-bg-soft: var(--chem-bg-soft); }
 
@@ -243,9 +268,33 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 .q-opt:hover { background: var(--accent-bg-soft); border-color: var(--border-strong); }
 .q-opt.selected { background: var(--accent-bg-soft); border-color: var(--accent); }
 .q-opt.disabled { cursor: default; }
-.q-opt.correct { border-color: var(--good); background: var(--good-bg); }
-.q-opt.incorrect { border-color: var(--bad); background: var(--bad-bg); }
-.q-opt.missed { border-color: var(--good); background: transparent; border-style: dashed; }
+.q-opt.correct {
+  border-color: var(--good); background: var(--good-bg);
+  border-width: 1px; box-shadow: inset 4px 0 0 var(--good);
+  padding-left: 18px;
+}
+.q-opt.incorrect {
+  border-color: var(--bad); background: var(--bad-bg);
+  border-width: 1px; box-shadow: inset 4px 0 0 var(--bad);
+  padding-left: 18px;
+}
+.q-opt.missed {
+  border-color: var(--good); background: var(--good-bg);
+  border-style: dashed; box-shadow: inset 4px 0 0 var(--good);
+  padding-left: 18px;
+}
+
+/* Result mark - displayed at the right side of the option */
+.q-opt .result-mark {
+  display: none; flex-shrink: 0;
+  font-family: var(--serif); font-style: italic; font-size: 18px;
+  align-self: center; padding-left: 8px;
+}
+.q-opt.correct .result-mark, .q-opt.incorrect .result-mark, .q-opt.missed .result-mark {
+  display: inline-flex;
+}
+.q-opt.correct .result-mark, .q-opt.missed .result-mark { color: var(--good); }
+.q-opt.incorrect .result-mark { color: var(--bad); }
 
 .q-opt-letter {
   flex-shrink: 0; width: 22px; height: 22px;
@@ -445,6 +494,29 @@ sup { vertical-align: 0.5em; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Style picker */
+.style-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.style-card {
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  padding: 14px; cursor: pointer; transition: all .15s; background: transparent;
+}
+.style-card:hover { background: var(--accent-bg-soft); }
+.style-card.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-bg-soft); }
+.style-preview {
+  height: 56px; border-radius: var(--radius); margin-bottom: 10px;
+  border: 1px solid var(--border); padding: 10px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 6px; justify-content: center;
+}
+.style-preview-aesthetic { background: #f5efe2; border-color: #d8ccb6; }
+.style-preview-aesthetic .sp-line { background: #5a3a2e; opacity: .7; }
+.style-preview-clean { background: #ffffff; border-color: #e5e7eb; }
+.style-preview-clean .sp-line { background: #1e3a8a; opacity: .8; }
+.sp-line { height: 3px; border-radius: 100px; display: block; }
+.sp-line-1 { width: 60%; }
+.sp-line-2 { width: 40%; }
+.style-name { font-size: 17px; font-style: italic; }
+.style-desc { font-size: 12px; color: var(--text-soft); margin-top: 2px; font-style: italic; }
+
 /* Section divider (decorative) */
 .divider {
   text-align: center; margin: 32px 0 24px;
@@ -594,6 +666,28 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
         <span class="toggle-slider"></span>
         <span>Náhodné poradie možností</span>
       </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">IV. Vzhľad</div>
+    <div class="style-picker">
+      <div class="style-card" data-style="aesthetic" onclick="setStyle('aesthetic')">
+        <div class="style-preview style-preview-aesthetic">
+          <span class="sp-line sp-line-1"></span>
+          <span class="sp-line sp-line-2"></span>
+        </div>
+        <div class="style-name">Pergamen</div>
+        <div class="style-desc">Krémové pozadie, teplé tóny</div>
+      </div>
+      <div class="style-card" data-style="clean" onclick="setStyle('clean')">
+        <div class="style-preview style-preview-clean">
+          <span class="sp-line sp-line-1"></span>
+          <span class="sp-line sp-line-2"></span>
+        </div>
+        <div class="style-name">Klasik</div>
+        <div class="style-desc">Biele pozadie, vyšší kontrast</div>
+      </div>
     </div>
   </div>
 
@@ -759,7 +853,7 @@ const STORAGE_PREFIX = 'lfq_';
 const STORAGE = {
   theme: 'theme', subject: 'subject', stars: 'stars', dontknow: 'dontknow',
   seen: 'seen', history: 'history', currentQuiz: 'currentQuiz',
-  lastWrong: 'lastWrong', settings: 'settings'
+  lastWrong: 'lastWrong', settings: 'settings', style: 'style'
 };
 
 const state = {
@@ -788,11 +882,19 @@ function setTheme(t) {
   document.getElementById('themeIcon').textContent = t === 'dark' ? '☀' : '☾';
   save(STORAGE.theme, t);
   const meta = document.querySelector('meta[name=theme-color]');
-  if (meta) meta.content = t === 'dark' ? '#1c1812' : '#f5efe2';
+  if (meta) meta.content = t === 'dark' ? '#1c1812' : (document.body.classList.contains('style-clean') ? '#ffffff' : '#f5efe2');
 }
 function toggleTheme() {
   const cur = document.documentElement.dataset.theme || 'light';
   setTheme(cur === 'dark' ? 'light' : 'dark');
+}
+
+function setStyle(s) {
+  document.body.classList.toggle('style-clean', s === 'clean');
+  document.querySelectorAll('.style-card').forEach(c => c.classList.toggle('active', c.dataset.style === s));
+  save(STORAGE.style, s);
+  const meta = document.querySelector('meta[name=theme-color]');
+  if (meta) meta.content = document.documentElement.dataset.theme === 'dark' ? '#1c1812' : (s === 'clean' ? '#ffffff' : '#f5efe2');
 }
 
 // ----- Subject -----
@@ -1146,9 +1248,19 @@ function checkAnswer() {
     const L = el.dataset.letter;
     const isSel = sel.includes(L);
     const isCorr = correctLetters.includes(L);
-    if (isCorr && isSel) el.classList.add('correct');
-    else if (!isCorr && isSel) el.classList.add('incorrect');
-    else if (isCorr && !isSel) el.classList.add('missed');
+    // Remove any previous result mark
+    const oldMark = el.querySelector('.result-mark');
+    if (oldMark) oldMark.remove();
+    let mark = '';
+    if (isCorr && isSel) { el.classList.add('correct'); mark = '✓ správne'; }
+    else if (!isCorr && isSel) { el.classList.add('incorrect'); mark = '✗ nesprávne'; }
+    else if (isCorr && !isSel) { el.classList.add('missed'); mark = '✓ chýbalo'; }
+    if (mark) {
+      const m = document.createElement('span');
+      m.className = 'result-mark';
+      m.textContent = mark;
+      el.appendChild(m);
+    }
   });
 
   state.quiz.answers[q.n] = { selected: sel, correct: isCorrect, skipped: false };
@@ -1575,6 +1687,7 @@ document.getElementById('customNumbers').addEventListener('input', () => updateS
 function init() {
   try {
     setTheme(load(STORAGE.theme, 'light'));
+    setStyle(load(STORAGE.style, 'aesthetic'));
     setSubject(load(STORAGE.subject, 'bio'));
     loadFromUrl();
     refreshHome();
