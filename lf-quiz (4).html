@@ -229,6 +229,14 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 .quiz-counter.good .dot { background: var(--good); }
 .quiz-counter.bad { color: var(--bad); border-color: var(--bad-border); }
 .quiz-counter.bad .dot { background: var(--bad); }
+.btn-end-quiz {
+  background: transparent; border: 1px solid var(--border); border-radius: 50%;
+  width: 28px; height: 28px; cursor: pointer; color: var(--text-soft);
+  font-family: var(--serif); font-size: 18px; line-height: 1; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all .15s; margin-left: 4px;
+}
+.btn-end-quiz:hover { color: var(--bad); border-color: var(--bad-border); }
 
 .q-card {
   background: var(--surface); border: 1px solid var(--border);
@@ -325,6 +333,29 @@ sup { vertical-align: 0.5em; }
 /* --- Quiz footer --- */
 .quiz-footer { display: flex; gap: 12px; margin-top: 20px; }
 .quiz-footer .btn { flex: 1; }
+
+/* Sticky bottom action bar on smaller viewports (mobile + tablet) for easier thumb reach */
+@media (max-width: 1024px) {
+  #view-quiz {
+    min-height: calc(100vh - 80px);
+    padding-bottom: 120px;
+  }
+  #view-quiz .quiz-footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    margin: 0; z-index: 50;
+    gap: 10px;
+  }
+  #view-quiz .quiz-footer .btn { padding: 14px 18px; font-size: 16px; }
+  #view-quiz .end-test-row {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 51;
+    pointer-events: none;
+  }
+  #view-quiz .end-test-row button { pointer-events: auto; }
+}
 
 /* --- Results view --- */
 .score-circle {
@@ -553,6 +584,7 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
     <button class="icon-btn" onclick="showView('stats')" title="Štatistiky" aria-label="Štatistiky">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/></svg>
     </button>
+    <button class="icon-btn" onclick="showView('settings')" title="Nastavenia" aria-label="Nastavenia" style="font-size:18px;">⚙</button>
     <button class="icon-btn" onclick="toggleTheme()" title="Tmavý/svetlý režim" aria-label="Téma">
       <span id="themeIcon">☾</span>
     </button>
@@ -653,51 +685,15 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">III. Nastavenia testu</div>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <label class="toggle">
-        <input type="checkbox" id="settingShuffleQuestions" checked>
-        <span class="toggle-slider"></span>
-        <span>Náhodné poradie otázok</span>
-      </label>
-      <label class="toggle">
-        <input type="checkbox" id="settingShuffleOptions" checked>
-        <span class="toggle-slider"></span>
-        <span>Náhodné poradie možností</span>
-      </label>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">IV. Vzhľad</div>
-    <div class="style-picker">
-      <div class="style-card" data-style="aesthetic" onclick="setStyle('aesthetic')">
-        <div class="style-preview style-preview-aesthetic">
-          <span class="sp-line sp-line-1"></span>
-          <span class="sp-line sp-line-2"></span>
-        </div>
-        <div class="style-name">Pergamen</div>
-        <div class="style-desc">Krémové pozadie, teplé tóny</div>
-      </div>
-      <div class="style-card" data-style="clean" onclick="setStyle('clean')">
-        <div class="style-preview style-preview-clean">
-          <span class="sp-line sp-line-1"></span>
-          <span class="sp-line sp-line-2"></span>
-        </div>
-        <div class="style-name">Klasik</div>
-        <div class="style-desc">Biele pozadie, vyšší kontrast</div>
-      </div>
-    </div>
-  </div>
-
   <button class="btn btn-block" id="startBtn" onclick="startQuiz()" style="font-size:18px;padding:16px;">
     Spustiť test
     <span id="startCount" style="opacity:.7;font-size:14px;"></span>
   </button>
 
-  <div style="margin-top:18px;display:flex;gap:8px;justify-content:center;">
-    <button class="btn btn-ghost btn-sm" onclick="shareLink()">Zdieľať aktuálny výber</button>
+  <div style="margin-top:18px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-ghost btn-sm" onclick="showView('settings')">Nastavenia</button>
+    <button class="btn btn-ghost btn-sm" onclick="showView('stats')">Štatistiky</button>
+    <button class="btn btn-ghost btn-sm" onclick="shareLink()">Zdieľať výber</button>
   </div>
 </section>
 
@@ -711,6 +707,7 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
     <div class="quiz-counters">
       <span class="quiz-counter good" title="Správne"><span class="dot"></span><span id="quizCorrectCount">0</span></span>
       <span class="quiz-counter bad" title="Nesprávne"><span class="dot"></span><span id="quizWrongCount">0</span></span>
+      <button class="btn-end-quiz" onclick="endQuizEarly()" title="Ukončiť test" aria-label="Ukončiť test">×</button>
     </div>
   </div>
 
@@ -731,9 +728,6 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
   <div class="quiz-footer">
     <button class="btn btn-secondary" id="skipBtn" onclick="skipQuestion()">Preskočiť</button>
     <button class="btn" id="checkBtn" onclick="checkAnswer()">Skontrolovať</button>
-  </div>
-  <div style="margin-top:12px;display:flex;justify-content:center;gap:8px;">
-    <button class="btn btn-ghost btn-sm" onclick="endQuizEarly()">Ukončiť test</button>
   </div>
 </section>
 
@@ -804,11 +798,71 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
       <div id="dontknowList" class="wrong-list"></div>
     </div>
   </div>
+</section>
 
-  <div style="margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-    <button class="btn btn-ghost btn-sm" onclick="exportData()">Export</button>
-    <button class="btn btn-ghost btn-sm" onclick="importData()">Import</button>
-    <button class="btn btn-ghost btn-sm" onclick="confirmReset()" style="color:var(--bad);border-color:var(--bad-border);">Vynulovať údaje</button>
+<!-- SETTINGS VIEW -->
+<section class="view" id="view-settings">
+  <h1>Nastavenia</h1>
+
+  <div class="card">
+    <div class="card-title">Vzhľad</div>
+    <div class="style-picker">
+      <div class="style-card" data-style="aesthetic" onclick="setStyle('aesthetic')">
+        <div class="style-preview style-preview-aesthetic">
+          <span class="sp-line sp-line-1"></span>
+          <span class="sp-line sp-line-2"></span>
+        </div>
+        <div class="style-name">Pergamen</div>
+        <div class="style-desc">Krémové pozadie, teplé tóny</div>
+      </div>
+      <div class="style-card" data-style="clean" onclick="setStyle('clean')">
+        <div class="style-preview style-preview-clean">
+          <span class="sp-line sp-line-1"></span>
+          <span class="sp-line sp-line-2"></span>
+        </div>
+        <div class="style-name">Klasik</div>
+        <div class="style-desc">Biele pozadie, vyšší kontrast</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Priebeh testu</div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <label class="toggle">
+        <input type="checkbox" id="settingShuffleQuestions" checked>
+        <span class="toggle-slider"></span>
+        <span>Náhodné poradie otázok</span>
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="settingShuffleOptions" checked>
+        <span class="toggle-slider"></span>
+        <span>Náhodné poradie možností</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Údaje</div>
+    <p style="font-size:14px;margin-bottom:14px;">Hviezdičky, históriu testov a označené otázky si môžeš zálohovať alebo prenásť na iné zariadenie.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="exportData()">Stiahnuť zálohu</button>
+      <button class="btn btn-secondary btn-sm" onclick="importData()">Načítať zálohu</button>
+      <button class="btn btn-ghost btn-sm" onclick="confirmReset()" style="color:var(--bad);border-color:var(--bad-border);">Vynulovať údaje</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Klávesy a gestá</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:10px 18px;font-size:14px;">
+      <span style="color:var(--text-soft);font-family:ui-monospace,monospace;font-size:13px;">1 2 3 4</span><span>označiť možnosť A/B/C/D</span>
+      <span style="color:var(--text-soft);font-family:ui-monospace,monospace;font-size:13px;">Enter</span><span>skontrolovať / pokračovať</span>
+      <span style="color:var(--text-soft);font-family:ui-monospace,monospace;font-size:13px;">S</span><span>označiť hviezdou</span>
+      <span style="color:var(--text-soft);font-family:ui-monospace,monospace;font-size:13px;">W</span><span>označiť "neviem"</span>
+      <span style="color:var(--text-soft);font-family:ui-monospace,monospace;font-size:13px;">Esc</span><span>ukončiť test</span>
+      <span style="color:var(--text-soft);font-style:italic;font-size:13px;">←</span><span>swipe vľavo: ďalšia otázka</span>
+      <span style="color:var(--text-soft);font-style:italic;font-size:13px;">↑</span><span>swipe hore: označiť hviezdou</span>
+    </div>
   </div>
 </section>
 
