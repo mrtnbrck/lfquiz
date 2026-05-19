@@ -621,7 +621,9 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
     <button class="icon-btn" onclick="showView('stats')" title="Štatistiky" aria-label="Štatistiky">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/></svg>
     </button>
-    <button class="icon-btn" onclick="showView('settings')" title="Nastavenia" aria-label="Nastavenia" style="font-size:18px;">⚙</button>
+    <button class="icon-btn" onclick="showView('settings')" title="Nastavenia" aria-label="Nastavenia">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></svg>
+    </button>
     <button class="icon-btn" onclick="toggleTheme()" title="Tmavý/svetlý režim" aria-label="Téma">
       <span id="themeIcon">☾</span>
     </button>
@@ -670,6 +672,25 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
         <div>
           <div class="label">Všetky otázky</div>
           <div class="desc" id="modeAllDesc">Náhodné poradie zo všetkých otázok</div>
+        </div>
+      </label>
+      <label class="option-row" data-mode="random">
+        <input type="radio" name="mode" value="random" onchange="setMode('random')">
+        <div style="flex:1;">
+          <div class="label">Náhodný výber</div>
+          <div class="desc">Náhodne vybraný počet otázok z celého predmetu</div>
+          <div class="range-input" id="randomInput">
+            <div class="range-row">
+              <input type="number" id="randomCount" min="1" max="2000" value="50" style="max-width:120px;">
+              <label style="min-width:0;">otázok</label>
+            </div>
+            <div class="chips" id="randomChips">
+              <span class="chip" onclick="setRandom(25)">25</span>
+              <span class="chip" onclick="setRandom(50)">50</span>
+              <span class="chip" onclick="setRandom(100)">100</span>
+              <span class="chip" onclick="setRandom(200)">200</span>
+            </div>
+          </div>
         </div>
       </label>
       <label class="option-row" data-mode="range">
@@ -899,6 +920,11 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
       <button class="btn btn-ghost btn-sm" onclick="confirmReset()" style="color:var(--bad);border-color:var(--bad-border);">Vynulovať údaje</button>
     </div>
   </div>
+
+  <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text-soft);font-style:italic;line-height:1.6;">
+    LF Quiz · verzia 1.0<br>
+    1090 otázok z biológie, 1200 z chémie
+  </div>
 </section>
 
 </main>
@@ -1011,6 +1037,15 @@ function setMode(m) {
   document.querySelectorAll('.option-row').forEach(r => r.classList.toggle('selected', r.dataset.mode === m));
   document.getElementById('rangeInput').classList.toggle('active', m === 'range');
   document.getElementById('customInput').classList.toggle('active', m === 'custom');
+  const ri = document.getElementById('randomInput');
+  if (ri) ri.classList.toggle('active', m === 'random');
+  updateStartButton();
+}
+
+function setRandom(n) {
+  document.getElementById('randomCount').value = n;
+  setMode('random');
+  document.querySelector('input[name=mode][value=random]').checked = true;
   updateStartButton();
 }
 
@@ -1093,6 +1128,9 @@ function getQuestionPool() {
   let pool = [];
   if (state.mode === 'all') {
     pool = all.slice();
+  } else if (state.mode === 'random') {
+    const count = parseInt(document.getElementById('randomCount').value) || 50;
+    pool = shuffle(all).slice(0, Math.min(count, all.length));
   } else if (state.mode === 'range') {
     pool = all.filter(q => q.n >= state.rangeFrom && q.n <= state.rangeTo);
   } else if (state.mode === 'custom') {
@@ -1825,6 +1863,7 @@ document.getElementById('rangeTo').addEventListener('input', e => {
   updateStartButton();
 });
 document.getElementById('customNumbers').addEventListener('input', () => updateStartButton());
+document.getElementById('randomCount').addEventListener('input', () => updateStartButton());
 
 // ----- Init -----
 function init() {
