@@ -34,7 +34,7 @@ body.style-clean {
   --border: #e5e7eb; --border-strong: #cbd5e1;
   --good: #15803d; --good-bg: #c4ebcf; --good-border: #4ade80;
   --bad: #b91c1c; --bad-bg: #facccc; --bad-border: #f87171;
-  --warn: #b45309; --warn-bg: #fed7aa;
+  --warn: #854d0e; --warn-bg: #fef3c7;
   --star: #ca8a04;
   --shadow: 0 1px 2px rgba(0,0,0,.04), 0 1px 3px rgba(0,0,0,.06);
 }
@@ -57,6 +57,7 @@ body.style-clean[data-theme="dark"], html[data-theme="dark"] body.style-clean {
   --chem: #86efac; --chem-light: #bbf7d0; --chem-bg: #14532d; --chem-bg-soft: #052e16;
   --good: #4ade80; --good-bg: #14532d; --good-border: #22c55e;
   --bad: #f87171; --bad-bg: #7f1d1d; --bad-border: #ef4444;
+  --warn: #fbbf24; --warn-bg: #3f2e0a;
 }
 body.subject-chem { --accent: var(--chem); --accent-light: var(--chem-light); --accent-bg: var(--chem-bg); --accent-bg-soft: var(--chem-bg-soft); }
 
@@ -269,11 +270,14 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 .q-options { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
 .q-opt {
   display: flex; align-items: flex-start; gap: 14px; padding: 14px 14px 14px 12px;
-  border: 1px solid var(--border); border-left: 4px solid transparent;
+  border: 1px solid var(--border); border-left: 4px solid var(--border-strong);
   border-radius: var(--radius);
   cursor: pointer; background: transparent; user-select: none; position: relative;
 }
-.q-opt:hover { background: var(--accent-bg-soft); border-color: var(--border-strong); }
+/* Hover only on devices with real hover (not touch) - prevents stuck hover state on tablets */
+@media (hover: hover) {
+  .q-opt:not(.disabled):hover { background: var(--accent-bg-soft); border-color: var(--border-strong); border-left-color: var(--accent); }
+}
 .q-opt.selected {
   background: var(--accent-bg-soft);
   border-color: var(--accent); border-left-color: var(--accent);
@@ -334,6 +338,11 @@ sup { vertical-align: 0.5em; }
 /* --- Quiz footer --- */
 .quiz-footer { display: flex; gap: 12px; margin-top: 20px; }
 .quiz-footer .btn { flex: 1; padding: 14px 24px; }
+.quiz-footer .btn-back {
+  flex: 0 0 auto; width: 56px; padding: 14px 0;
+  font-size: 22px; line-height: 1;
+}
+.quiz-footer .btn-back:disabled { opacity: .25; }
 
 /* --- Results view --- */
 .score-circle {
@@ -379,15 +388,40 @@ sup { vertical-align: 0.5em; }
 .wrong-item {
   display: flex; align-items: center; gap: 14px; padding: 12px 14px;
   border: 1px solid var(--border); border-radius: var(--radius);
-  background: transparent; cursor: pointer; transition: all .15s;
+  background: transparent; cursor: pointer; transition: background .1s;
 }
-.wrong-item:hover { background: var(--bad-bg); border-color: var(--bad-border); }
+@media (hover: hover) {
+  .wrong-item:hover { background: var(--bad-bg); border-color: var(--bad-border); }
+}
+.wrong-item.expanded { background: var(--accent-bg-soft); border-color: var(--border-strong); }
 .wrong-item .badge {
   color: var(--text-soft); font-weight: 400; font-style: italic;
   padding: 0; border-radius: 0; font-size: 13px; min-width: 60px;
   border-right: 1px solid var(--border-strong); padding-right: 12px;
 }
 .wrong-item .text { flex: 1; font-size: 14px; line-height: 1.4; color: var(--text); }
+.wrong-item .wd-chevron {
+  flex-shrink: 0; color: var(--text-soft); font-size: 22px;
+  font-family: var(--serif); transition: transform .15s;
+}
+.wrong-item.expanded .wd-chevron { transform: rotate(90deg); }
+
+.wrong-detail {
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  padding: 18px; margin: 0 0 10px; background: var(--surface);
+  border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0;
+  margin-top: -5px;
+}
+.wd-question {
+  font-size: 17px; line-height: 1.45; margin-bottom: 16px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  font-weight: 400;
+}
+.wd-skipped-note {
+  font-size: 13px; font-style: italic; color: var(--text-soft);
+  background: var(--warn-bg); padding: 8px 12px; border-radius: var(--radius);
+  margin-bottom: 12px;
+}
 
 /* --- Toast / confetti --- */
 .toast {
@@ -704,6 +738,7 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
   </div>
 
   <div class="quiz-footer">
+    <button class="btn btn-ghost btn-back" id="backBtn" onclick="goBack()" title="Späť (←)" aria-label="Späť">‹</button>
     <button class="btn btn-secondary" id="skipBtn" onclick="skipQuestion()">Preskočiť</button>
     <button class="btn" id="checkBtn" onclick="checkAnswer()">Skontrolovať</button>
   </div>
@@ -1193,6 +1228,7 @@ function renderQuestion() {
   document.getElementById('qTotal').textContent = state.quiz.questions.length;
   document.getElementById('qNum').textContent = `${state.quiz.subject === 'bio' ? 'Biológia' : 'Chémia'} · otázka ${q.n}`;
   document.getElementById('qText').innerHTML = q.q;
+  
   // Update live counters
   updateQuizCounters();
   document.getElementById('quizProgress').style.width = ((state.quiz.idx)/state.quiz.questions.length*100)+'%';
@@ -1201,10 +1237,12 @@ function renderQuestion() {
   document.getElementById('starBtn').classList.toggle('active', isStarred(q.n));
   document.getElementById('knowBtn').classList.toggle('active', isDontKnow(q.n));
 
+  // Back button - disabled when on first question
+  document.getElementById('backBtn').disabled = state.quiz.idx === 0;
+
   // Options
   const opts = document.getElementById('qOptions');
   opts.innerHTML = '';
-  // Render in optOrder
   q.optOrder.forEach((origIdx, displayIdx) => {
     const o = q.o[origIdx];
     const div = document.createElement('div');
@@ -1240,11 +1278,101 @@ function renderQuestion() {
     opts.appendChild(div);
   });
 
-  // Reset action buttons
-  state.quiz.currentSelection = [];
-  state.quiz.questionAnswered = false;
-  document.getElementById('checkBtn').textContent = 'Skontrolovať';
-  document.getElementById('skipBtn').style.display = 'inline-flex';
+  // Restore previously-answered state if this question was already done
+  const prevAnswer = state.quiz.answers[q.n];
+  if (prevAnswer && !prevAnswer.skipped) {
+    // Re-show evaluation result
+    state.quiz.currentSelection = prevAnswer.selected;
+    state.quiz.questionAnswered = true;
+    const correctLetters = q.a.split('');
+    document.querySelectorAll('.q-opt').forEach(el => {
+      el.classList.add('disabled');
+      const L = el.dataset.letter;
+      const isSel = prevAnswer.selected.includes(L);
+      const isCorr = correctLetters.includes(L);
+      let mark = '';
+      if (isCorr && isSel) { el.classList.add('correct'); mark = '✓ správne'; }
+      else if (!isCorr && isSel) { el.classList.add('incorrect'); mark = '✗ nesprávne'; }
+      else if (isCorr && !isSel) { el.classList.add('missed'); mark = '✓ chýbalo'; }
+      if (mark) {
+        const m = document.createElement('span');
+        m.className = 'result-mark';
+        m.textContent = mark;
+        el.appendChild(m);
+      }
+    });
+    document.getElementById('checkBtn').textContent = state.quiz.idx + 1 >= state.quiz.questions.length ? 'Ukončiť test' : 'Ďalšia →';
+    document.getElementById('skipBtn').style.display = 'none';
+  } else {
+    // Fresh question state
+    state.quiz.currentSelection = [];
+    state.quiz.questionAnswered = false;
+    document.getElementById('checkBtn').textContent = 'Skontrolovať';
+    document.getElementById('skipBtn').style.display = 'inline-flex';
+  }
+}
+
+function toggleWrongDetail(itemEl, qNum) {
+  // If already expanded, collapse
+  const existing = itemEl.nextElementSibling;
+  if (existing && existing.classList.contains('wrong-detail')) {
+    existing.remove();
+    itemEl.classList.remove('expanded');
+    return;
+  }
+  // Collapse any other open detail
+  itemEl.parentNode.querySelectorAll('.wrong-detail').forEach(d => d.remove());
+  itemEl.parentNode.querySelectorAll('.wrong-item.expanded').forEach(i => i.classList.remove('expanded'));
+
+  if (!state.quiz) return;
+  const q = state.quiz.questions.find(x => x.n === qNum);
+  if (!q) return;
+  const ans = state.quiz.answers[qNum];
+  const correctLetters = q.a.split('');
+
+  const detail = document.createElement('div');
+  detail.className = 'wrong-detail';
+
+  let optsHtml = '';
+  q.optOrder.forEach((origIdx, displayIdx) => {
+    const o = q.o[origIdx];
+    const displayLetter = String.fromCharCode(65 + displayIdx);
+    const isSel = ans && ans.selected && ans.selected.includes(o.l);
+    const isCorr = correctLetters.includes(o.l);
+    let cls = 'q-opt disabled';
+    let mark = '';
+    if (isCorr && isSel) { cls += ' correct'; mark = '✓ správne'; }
+    else if (!isCorr && isSel) { cls += ' incorrect'; mark = '✗ tvoja'; }
+    else if (isCorr && !isSel) { cls += ' missed'; mark = '✓ chýbalo'; }
+
+    let content = '';
+    if (o.i) {
+      const k = `${state.quiz.subject}_${q.n}_${o.l}`;
+      const img = IMAGES[k];
+      if (img) content = `<img src="data:image/png;base64,${img}" alt="">`;
+      if (o.t) content += `<div style="margin-top:4px;">${o.t}</div>`;
+    } else {
+      content = o.t;
+    }
+    optsHtml += `<div class="${cls}"><div class="q-opt-letter">${displayLetter}</div><div class="q-opt-content">${content}</div>${mark ? `<span class="result-mark">${mark}</span>` : ''}</div>`;
+  });
+
+  const skippedNote = ans && ans.skipped ? '<div class="wd-skipped-note">Túto otázku si preskočila.</div>' : '';
+
+  detail.innerHTML = `
+    <div class="wd-question">${q.q}</div>
+    ${skippedNote}
+    <div class="q-options">${optsHtml}</div>
+  `;
+
+  itemEl.parentNode.insertBefore(detail, itemEl.nextSibling);
+  itemEl.classList.add('expanded');
+}
+
+function goBack() {
+  if (!state.quiz || state.quiz.idx === 0) return;
+  state.quiz.idx--;
+  renderQuestion();
 }
 
 function zoomImage(src) {
@@ -1411,8 +1539,10 @@ function finishQuiz() {
     wrongQs.forEach(q => {
       const div = document.createElement('div');
       div.className = 'wrong-item';
+      div.dataset.qnum = q.n;
+      div.onclick = () => toggleWrongDetail(div, q.n);
       const tShort = q.q.replace(/<[^>]+>/g,'').slice(0, 100);
-      div.innerHTML = `<span class="badge">#${q.n}</span><div class="text">${tShort}</div>`;
+      div.innerHTML = `<span class="badge">#${q.n}</span><div class="text">${tShort}</div><span class="wd-chevron">›</span>`;
       wlist.appendChild(div);
     });
   }
@@ -1673,6 +1803,9 @@ document.addEventListener('keydown', e => {
   } else if (e.key === 'w' || e.key === 'W') {
     toggleDontKnow();
     e.preventDefault();
+  } else if (e.key === 'ArrowLeft') {
+    goBack();
+    e.preventDefault();
   } else if (e.key === 'Escape') {
     endQuizEarly();
   }
@@ -1693,8 +1826,12 @@ document.addEventListener('touchend', e => {
   if (Math.max(ax, ay) < 50) return;
   if (ax > ay) {
     // Horizontal swipe
-    if (dx < -50) { // left swipe = next
+    if (dx < -50) {
+      // left swipe = next (only after answer)
       if (state.quiz && state.quiz.questionAnswered) nextQuestion();
+    } else if (dx > 50) {
+      // right swipe = back
+      goBack();
     }
   } else {
     // Vertical
