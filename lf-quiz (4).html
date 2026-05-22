@@ -1853,6 +1853,25 @@ function loadFromUrl() {
   updateStartButton();
 }
 
+// ----- Keyboard shortcuts (physical keyboard only - won't fire on touch devices) -----
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (!document.getElementById('view-quiz').classList.contains('active')) return;
+  // Map both digits and Slovak keyboard chars (+ ľ š č on the 1-4 keys), plus physical key codes
+  const keyMap = { '1':0, '+':0, '2':1, 'ľ':1, '3':2, 'š':2, '4':3, 'č':3 };
+  const codeMap = { 'Digit1':0, 'Digit2':1, 'Digit3':2, 'Digit4':3 };
+  let idx = keyMap[e.key];
+  if (idx === undefined) idx = codeMap[e.code];
+  if (idx !== undefined) {
+    const opts = document.querySelectorAll('.q-opt');
+    if (opts[idx]) toggleOption(opts[idx]);
+    e.preventDefault();
+  } else if (e.key === 'Enter') {
+    checkAnswer();
+    e.preventDefault();
+  }
+});
+
 // ----- Range inputs -----
 document.getElementById('rangeFrom').addEventListener('input', e => {
   state.rangeFrom = parseInt(e.target.value) || 1;
