@@ -332,8 +332,9 @@ p { color: var(--text-soft); margin-bottom: 14px; font-style: italic; font-size:
 .q-opt.incorrect .q-opt-letter { color: var(--bad); border-right-color: var(--bad); }
 .q-opt.missed .q-opt-letter { color: var(--warn); border-right-color: var(--warn); }
 .q-opt-content { flex: 1; padding-top: 2px; line-height: 1.5; font-size: calc(16px * var(--font-scale)); min-width: 0; }
+.q-img-wrap { position: relative; display: inline-block; }
 .q-opt-content img {
-  max-width: min(100%, 240px); max-height: 160px; height: auto; display: block;
+  max-width: min(100%, 180px); max-height: 115px; height: auto; display: block;
   background: white; border-radius: 4px; padding: 4px;
   object-fit: contain; cursor: zoom-in;
   border: 1px solid var(--border);
@@ -472,7 +473,7 @@ sup { vertical-align: 0.5em; }
   .q-card { padding: 22px 18px 18px; }
   .q-text { font-size: calc(16px * var(--font-scale)); padding-right: 82px; }
   .q-opt-content { font-size: calc(15px * var(--font-scale)); }
-  .q-opt-content img { max-width: min(100%, 200px); max-height: 130px; }
+  .q-opt-content img { max-width: min(100%, 150px); max-height: 100px; }
   .q-opt { padding: 10px 12px; gap: 12px; }
   .score-circle { width: 160px; height: 160px; }
   .score-num { font-size: 48px; }
@@ -1326,11 +1327,14 @@ function renderQuestion() {
       const k = `${state.quiz.subject}_${q.n}_${o.l}`;
       const imgData = IMAGES[k];
       if (imgData) {
+        const wrap = document.createElement('span');
+        wrap.className = 'q-img-wrap';
         const img = document.createElement('img');
         img.src = 'data:image/png;base64,' + imgData;
         img.alt = `Možnosť ${o.l}`;
-        img.onclick = (e) => { e.stopPropagation(); zoomImage(img.src); };
-        content.appendChild(img);
+        wrap.onclick = (e) => { e.stopPropagation(); zoomImage(img.src); };
+        wrap.appendChild(img);
+        content.appendChild(wrap);
         if (o.t) {
           const txt = document.createElement('div');
           txt.style.marginTop = '6px';
