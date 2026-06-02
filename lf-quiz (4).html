@@ -679,7 +679,7 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
         <input type="radio" name="mode" value="random" onchange="setMode('random')">
         <div style="flex:1;">
           <div class="label">Náhodný výber</div>
-          <div class="desc">Náhodne vybraný počet otázok z celého predmetu</div>
+          <div class="desc">Náhodne vybraný počet otázok, voliteľne z rozsahu</div>
           <div class="range-input" id="randomInput">
             <div class="range-row">
               <input type="number" id="randomCount" min="1" max="2000" value="50" style="max-width:120px;">
@@ -690,6 +690,11 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
               <span class="chip" onclick="setRandom(50)">50</span>
               <span class="chip" onclick="setRandom(100)">100</span>
               <span class="chip" onclick="setRandom(200)">200</span>
+            </div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:var(--text-soft);margin-top:14px;margin-bottom:-2px;font-style:normal;">Voliteľný rozsah</div>
+            <div class="range-row">
+              <label>Od</label><input type="number" id="randomFrom" min="1" placeholder="-">
+              <label>Do</label><input type="number" id="randomTo" min="1" placeholder="-">
             </div>
           </div>
         </div>
@@ -923,7 +928,7 @@ code { font-family: ui-monospace, "Courier New", Courier, monospace; font-size: 
   </div>
 
   <div style="text-align:center;margin-top:24px;font-size:12px;color:var(--text-soft);font-style:italic;line-height:1.6;">
-    LF Quiz · verzia 1.0<br>
+    LF Quiz · verzia 1.1<br>
     1090 otázok z biológie, 1200 z chémie
   </div>
 </section>
@@ -1131,7 +1136,14 @@ function getQuestionPool() {
     pool = all.slice();
   } else if (state.mode === 'random') {
     const count = parseInt(document.getElementById('randomCount').value) || 50;
-    pool = shuffle(all).slice(0, Math.min(count, all.length));
+    const from = parseInt(document.getElementById('randomFrom').value);
+    const to = parseInt(document.getElementById('randomTo').value);
+    let candidates = all;
+    if (!isNaN(from) && !isNaN(to)) {
+      const lo = Math.min(from, to), hi = Math.max(from, to);
+      candidates = all.filter(q => q.n >= lo && q.n <= hi);
+    }
+    pool = shuffle(candidates).slice(0, Math.min(count, candidates.length));
   } else if (state.mode === 'range') {
     pool = all.filter(q => q.n >= state.rangeFrom && q.n <= state.rangeTo);
   } else if (state.mode === 'custom') {
@@ -1887,6 +1899,8 @@ document.getElementById('rangeTo').addEventListener('input', e => {
 });
 document.getElementById('customNumbers').addEventListener('input', () => updateStartButton());
 document.getElementById('randomCount').addEventListener('input', () => updateStartButton());
+document.getElementById('randomFrom').addEventListener('input', () => updateStartButton());
+document.getElementById('randomTo').addEventListener('input', () => updateStartButton());
 
 // ----- Init -----
 function init() {
